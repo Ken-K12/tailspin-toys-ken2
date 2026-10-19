@@ -3,12 +3,18 @@ import Layout from '../layouts/Layout.astro';
 import GameCard from '../components/GameCard.astro';
 import PageHero from '../components/PageHero.astro';
 import EmptyState from '../components/EmptyState.astro';
+import GameFilters from '../components/GameFilters.astro';
 import { getDatabase } from '../lib/db';
 import { getAllGames } from '../lib/games';
+import { getAllCategories } from '../lib/categories';
+import { getAllPublishers } from '../lib/publishers';
 
 export const prerender = true;
 
-const games = await getAllGames(getDatabase());
+const db = getDatabase();
+const games = await getAllGames(db);
+const categories = await getAllCategories(db);
+const publishers = await getAllPublishers(db);
 ---
 
 <Layout title="Tailspin Toys - あなたの新しいお気に入りのゲームをクラウドファンディングで！">
@@ -24,10 +30,61 @@ const games = await getAllGames(getDatabase());
       {games.length === 0 ? (
         <EmptyState text="現在、公開中のゲームはありません。" />
       ) : (
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" data-testid="games-grid">
-          {games.map((game) => <GameCard game={game} />)}
-        </div>
+        <>
+          <GameFilters categories={categories} publishers={publishers} />
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" data-testid="games-grid">
+            {games.map((game) => (
+              <div data-testid="game-item" data-category-id={game.category?.id} data-publisher-id={game.publisher?.id}>
+                <GameCard game={game} />
+              </div>
+            ))}
+          </div>
+          <div id="filter-empty" hidden data-testid="filter-empty">
+            <EmptyState text="条件に一致するゲームがありません。" />
+          </div>
+        </>
       )}
     </div>
   </div>
 </Layout>
+
+<script>
+  import { filterGames } from '../lib/filters';
+
+  const form = document.querySelector<HTMLFormElement>('[data-testid="game-filters"]');
+  const grid = document.querySelector<HTMLElement>('[data-testid="games-grid"]');
+  const empty = document.getElementById('filter-empty');
+  const count = document.querySelector<HTMLElement>('[data-testid="filter-result-count"]');
+
+  const toId = (value: string | undefined): number | null => (value ? Number(value) : null);
+
+  function applyFilters(): void {
+    if (!form || !grid || !empty || !count) return;
+    const categoryIds = Array.from(
+      form.querySelectorAll<HTMLInputElement>('input[name="category"]:checked'),
+    ).map((input) => Number(input.value));
+    const publisherId = toId(form.querySelector<HTMLSelectElement>('select[name="publisher"]')?.value);
+
+    const items = Array.from(grid.querySelectorAll<HTMLElement>('[data-testid="game-item"]'));
+    const entries = items.map((el) => {
+      const categoryId = toId(el.dataset.categoryId);
+      const pubId = toId(el.dataset.publisherId);
+      return {
+        el,
+        category: categoryId === null ? null : { id: categoryId, name: '' },
+        publisher: pubId === null ? null : { id: pubId, name: '' },
+      };
+    });
+    const visible = new Set(filterGames(entries, { categoryIds, publisherId }));
+    entries.forEach((entry) => {
+      entry.el.hidden = !visible.has(entry);
+    });
+    grid.hidden = visible.size === 0;
+    empty.hidden = visible.size !== 0;
+    count.textContent = `${visible.size} 件のゲームを表示中`;
+  }
+
+  form?.addEventListener('change', applyFilters);
+  // reset clears controls after the event, so recompute on the next tick
+  form?.addEventListener('reset', () => setTimeout(applyFilters, 0));
+</script>
