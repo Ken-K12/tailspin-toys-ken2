@@ -91,7 +91,7 @@
 アプリケーションはリポジトリのルートに配置されています。
 
 - `db/`: Drizzle のスキーマ、マイグレーション、変換処理、シード、`games.csv`
-- `src/lib/`: Node SQLite クライアント（`db.ts`）とデータアクセス用ヘルパー（`games.ts`）
+- `src/lib/`: Node SQLite クライアント（`db.ts`）とデータアクセス用ヘルパー（`games.ts`、`categories.ts`、`publishers.ts`）と純粋な絞り込みロジック（`filters.ts`）
 - `src/components/`: 再利用可能な `.astro` コンポーネント
 - `src/layouts/`: Astro のレイアウトテンプレート
 - `src/pages/`: Astro のページルート（一覧の `index.astro`、`game/[id].astro`、`404.astro`、`about.astro`）
