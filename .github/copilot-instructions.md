@@ -13,6 +13,8 @@
 - **明示的に指示された場合を除き、main へのコミットやプッシュを自動で行わないこと**
 
 ## コード標準
+- エクスポートされるすべての関数には、その目的、引数、および戻り値を説明するTSDocコメントを記述してください。
+- import文やその他のコードの前に、ファイルの目的を説明するコメントブロックを記述してください。
 
 ### 各コミット前に必須の事項
 
@@ -89,7 +91,7 @@
 アプリケーションはリポジトリのルートに配置されています。
 
 - `db/`: Drizzle のスキーマ、マイグレーション、変換処理、シード、`games.csv`
-- `src/lib/`: Node SQLite クライアント（`db.ts`）とデータアクセス用ヘルパー（`games.ts`）
+- `src/lib/`: Node SQLite クライアント（`db.ts`）とデータアクセス用ヘルパー（`games.ts`、`categories.ts`、`publishers.ts`）と純粋な絞り込みロジック（`filters.ts`）
 - `src/components/`: 再利用可能な `.astro` コンポーネント
 - `src/layouts/`: Astro のレイアウトテンプレート
 - `src/pages/`: Astro のページルート（一覧の `index.astro`、`game/[id].astro`、`404.astro`、`about.astro`）
