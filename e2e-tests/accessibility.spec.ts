@@ -221,3 +221,46 @@ test.describe('Accessibility Tests', () => {
     }
   });
 });
+
+test.describe('High contrast mode', () => {
+  test('toggle enables high contrast and persists across reloads', async ({ page }) => {
+    await page.goto('/');
+    const toggle = page.getByTestId('contrast-toggle');
+    const html = page.locator('html');
+
+    await expect(toggle).toHaveAttribute('aria-pressed', 'false');
+    await expect(html).not.toHaveAttribute('data-contrast', 'high');
+
+    await toggle.click();
+    await expect(html).toHaveAttribute('data-contrast', 'high');
+    await expect(toggle).toHaveAttribute('aria-pressed', 'true');
+
+    await page.reload();
+    await expect(html).toHaveAttribute('data-contrast', 'high');
+    await expect(page.getByTestId('contrast-toggle')).toHaveAttribute('aria-pressed', 'true');
+
+    await page.goto('/about');
+    await expect(html).toHaveAttribute('data-contrast', 'high');
+
+    await page.getByTestId('contrast-toggle').click();
+    await page.reload();
+    await expect(html).not.toHaveAttribute('data-contrast', 'high');
+  });
+
+  test('toggle is keyboard operable', async ({ page }) => {
+    await page.goto('/');
+    await page.getByTestId('contrast-toggle').focus();
+    await page.keyboard.press('Enter');
+    await expect(page.locator('html')).toHaveAttribute('data-contrast', 'high');
+  });
+
+  test('high contrast mode has no axe violations', async ({ page }) => {
+    await page.goto('/');
+    await page.getByTestId('contrast-toggle').click();
+    await page.waitForSelector('[data-testid="games-grid"]');
+    const results = await new AxeBuilder({ page })
+      .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+      .analyze();
+    expect(results.violations).toEqual([]);
+  });
+});

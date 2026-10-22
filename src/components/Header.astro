@@ -18,10 +18,38 @@ import Menu from '../assets/icons/menu.svg';
       </div>
       <div class="text-xl font-bold"><a href="/" class="hover:underline">Tailspin Toys</a></div>
     </div>
+    <button
+      id="contrast-toggle"
+      type="button"
+      aria-pressed="false"
+      class="px-3 py-2 rounded bg-slate-900 text-white border border-white text-sm font-medium hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-blue-500"
+      data-testid="contrast-toggle"
+    >
+      ハイコントラスト
+    </button>
   </div>
 </header>
 
 <script>
+  // ハイコントラスト設定を localStorage に保存し、再読み込み後も維持する
+  const contrastToggle = document.getElementById('contrast-toggle');
+  if (contrastToggle) {
+    const root = document.documentElement;
+    const sync = () => contrastToggle.setAttribute('aria-pressed', String(root.dataset.contrast === 'high'));
+    sync();
+    contrastToggle.addEventListener('click', () => {
+      const enable = root.dataset.contrast !== 'high';
+      if (enable) root.dataset.contrast = 'high';
+      else delete root.dataset.contrast;
+      try {
+        localStorage.setItem('contrast', enable ? 'high' : 'normal');
+      } catch {
+        // ストレージが使えない場合は、このページ内のみ有効
+      }
+      sync();
+    });
+  }
+
   // Toggle menu visibility when hamburger is clicked
   const menuToggle = document.getElementById('menu-toggle');
   const menu = document.getElementById('menu');

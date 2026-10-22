@@ -34,3 +34,38 @@
   --color-purple-900: #831843;
   --color-purple-950: #500724;
 }
+
+/*
+ * ハイコントラストモード
+ * <html data-contrast="high"> のとき、既存ユーティリティが参照する
+ * カラー変数を黒背景・白文字・高彩度アクセントに上書きする。
+ */
+:root[data-contrast="high"] {
+  --color-slate-50: #fff;
+  --color-slate-100: #fff;
+  --color-slate-200: #fff;
+  --color-slate-300: #fff;
+  --color-slate-400: #fff;
+  --color-slate-500: #fff;
+  --color-slate-600: #000;
+  --color-slate-700: #000;
+  --color-slate-800: #000;
+  --color-slate-900: #000;
+  --color-slate-950: #000;
+  --color-blue-300: #ffff00;
+  --color-blue-400: #ffff00;
+  --color-blue-500: #0000cc;
+  --color-blue-600: #0000cc;
+  --color-blue-700: #0000cc;
+  --color-purple-300: #ffff00;
+  --color-purple-400: #ffff00;
+}
+
+:root[data-contrast="high"] :where(a, button, input, select, textarea) {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+:root[data-contrast="high"] :where(main a) {
+  text-decoration: underline;
+}

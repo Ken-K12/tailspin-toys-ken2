@@ -17,6 +17,16 @@ const { title = "Tailspin Toys" } = Astro.props;
         <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
         <meta name="generator" content={Astro.generator} />
         <title>{title}</title>
+        <!-- 初回描画前に保存済みの設定を適用し、ちらつきを防ぐ -->
+        <script is:inline>
+            try {
+                if (localStorage.getItem('contrast') === 'high') {
+                    document.documentElement.dataset.contrast = 'high';
+                }
+            } catch {
+                // localStorage が使えない場合は既定の配色のまま
+            }
+        </script>
         <!-- Preconnect to improve font loading -->
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
